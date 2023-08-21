@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "brewlogs", "brewlogs\brewlogs.csproj", "{19BDA513-1CA0-4501-BA86-6BD83E965760}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "brewlogs.tests", "brewlogs.tests\brewlogs.tests.csproj", "{DA0AC2D1-2F2D-461C-B891-C7037FED797C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{19BDA513-1CA0-4501-BA86-6BD83E965760}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19BDA513-1CA0-4501-BA86-6BD83E965760}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19BDA513-1CA0-4501-BA86-6BD83E965760}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19BDA513-1CA0-4501-BA86-6BD83E965760}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA0AC2D1-2F2D-461C-B891-C7037FED797C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA0AC2D1-2F2D-461C-B891-C7037FED797C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA0AC2D1-2F2D-461C-B891-C7037FED797C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA0AC2D1-2F2D-461C-B891-C7037FED797C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
