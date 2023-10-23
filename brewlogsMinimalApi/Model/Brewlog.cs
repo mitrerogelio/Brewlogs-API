@@ -1,12 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace brewlogs.Models;
+namespace brewlogsMinimalApi.Model;
 
 public class Brewlog
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     public string? CoffeeName { get; set; }
     public int Dose { get; set; }
