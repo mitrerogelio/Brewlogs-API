@@ -1,34 +1,23 @@
 using brewlogsMinimalApi.Model;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace brewlogsMinimalApi.Data
 {
-    public class DataContext : DbContext
+  public class DataContext : DbContext
+  {
+    public DbSet<Brewlog>? Brewlogs { get; set; }
+
+    public string DbPath { get; }
+
+    public DataContext()
     {
-        public DbSet<Brewlog> Brewlog { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            const string connectionString = "server=localhost;database=brewlogsdb;user=root;password=panama";
-
-            var serverVersion = new MySqlServerVersion(new Version(8, 1, 0));
-
-            optionsBuilder.UseMySql(connectionString, serverVersion);
-        }
-
-        /*
-        public DataContext(DbContextOptions<DataContext> options, DbSet<Brewlog> brewlog) : base(options)
-        {
-            Brewlog = brewlog;
-        }
-
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-            // Entity Mappings
-            modelBuilder.Entity<Brewlog>(entity => { entity.HasKey(e => e.Id); });
-        }
-    */
+      var folder = Environment.SpecialFolder.LocalApplicationData;
+      var path = Environment.GetFolderPath(folder);
+      DbPath = System.IO.Path.Join(path, "brewlogsdb");
     }
+
+    // Configures EF to create a Sqlite database file in special "local" folder
+    protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseSqlite($"Data Source={DbPath}");
+  }
 }

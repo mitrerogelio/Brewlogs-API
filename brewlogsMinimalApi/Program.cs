@@ -5,7 +5,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-// Configure DbContext with MySQL
 
 var app = builder.Build();
 
@@ -17,6 +16,7 @@ if (app.Environment.IsDevelopment()) {
 
 app.UseHttpsRedirection();
 
+// Routes
 app.MapGet("/logs", () => { Console.WriteLine("Hello World"); })
     .WithOpenApi();
 
