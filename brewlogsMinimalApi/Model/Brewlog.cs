@@ -14,7 +14,7 @@ public class Brewlog
     public string? Roast { get; set; }
     public string? BrewerUsed { get; set; }
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-    public DateTime CreatedAt { get; set; }
+    public DateTime? CreatedAt { get; set; }
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-    public DateTime LastUpdated { get; set; }
+    public DateTime? LastUpdated { get; set; }
 }
