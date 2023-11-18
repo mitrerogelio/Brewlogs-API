@@ -15,7 +15,6 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -24,7 +23,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Define CRUD routes and methods
 app.MapGet("/brewlogs", async (BrewlogsDbContext dbContext) =>
 {
     var brewlogs = await dbContext.Brewlogs.ToListAsync();
@@ -53,7 +51,11 @@ app.MapPut("/brewlogs/{id}", async (int id, Brewlog updatedBrewlog, BrewlogsDbCo
     }
 
     existingBrewlog.CoffeeName = updatedBrewlog.CoffeeName;
-    // Update other properties as needed
+    existingBrewlog.Dose = updatedBrewlog.Dose;
+    existingBrewlog.Grind = updatedBrewlog.Grind;
+    existingBrewlog.BrewRatio = updatedBrewlog.BrewRatio;
+    existingBrewlog.Roast = updatedBrewlog.Roast;
+    existingBrewlog.BrewerUsed = updatedBrewlog.BrewerUsed;
 
     await dbContext.SaveChangesAsync();
     return Results.Ok(existingBrewlog);
