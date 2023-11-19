@@ -1,15 +1,64 @@
 using brewlogsMinimalApi.Data;
-using brewlogsMinimalApi.Model;
+using brewlogsMinimalApi.Identity;
+using brewlogsMinimalApi.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configuration
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(Environment.CurrentDirectory)
+    .AddJsonFile("appsettings.Development.json")
+    .Build();
+
+// Connection String
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Identity
+builder.Services.AddDbContext<IdentityDbContext>(options =>
+{
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+});
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<IdentityDbContext>()
+    .AddDefaultTokenProviders();
+
+// Data
 builder.Services.AddDbContext<BrewlogsDbContext>(options =>
 {
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
 
+// Authentication
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.Authority = builder.Configuration["Authentication:ValidIssuer"];
+        options.Audience = builder.Configuration["Authentication:ValidAudiences:0"];
+    });
+
+// Authorization
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("BearerPolicy", policy =>
+    {
+        policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+    });
+});
+
+// Controllers
+builder.Services.AddControllers();
+
+builder.Services.AddScoped<JwtService>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -21,57 +70,24 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseHttpsRedirection();
 
-app.MapGet("/brewlogs", async (BrewlogsDbContext dbContext) =>
+// Require Authentication for Endpoints
+app.Use(async (context, next) =>
 {
-    var brewlogs = await dbContext.Brewlogs.ToListAsync();
-    return Results.Ok(brewlogs);
-});
-
-app.MapGet("/brewlogs/{id}", async (int id, BrewlogsDbContext dbContext) =>
-{
-    var brewlog = await dbContext.Brewlogs.FindAsync(id);
-    return brewlog == null ? Results.NotFound() : Results.Ok(brewlog);
-});
-
-app.MapPost("/brewlogs", async (Brewlog brewlog, BrewlogsDbContext dbContext) =>
-{
-    dbContext.Brewlogs.Add(brewlog);
-    await dbContext.SaveChangesAsync();
-    return Results.Created($"/brewlogs/{brewlog.Id}", brewlog);
-});
-
-app.MapPut("/brewlogs/{id}", async (int id, Brewlog updatedBrewlog, BrewlogsDbContext dbContext) =>
-{
-    var existingBrewlog = await dbContext.Brewlogs.FindAsync(id);
-    if (existingBrewlog == null)
+    var authResult = await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+    if (!authResult.Succeeded)
     {
-        return Results.NotFound();
+        context.Response.StatusCode = 401;
+        return;
     }
 
-    existingBrewlog.CoffeeName = updatedBrewlog.CoffeeName;
-    existingBrewlog.Dose = updatedBrewlog.Dose;
-    existingBrewlog.Grind = updatedBrewlog.Grind;
-    existingBrewlog.BrewRatio = updatedBrewlog.BrewRatio;
-    existingBrewlog.Roast = updatedBrewlog.Roast;
-    existingBrewlog.BrewerUsed = updatedBrewlog.BrewerUsed;
-
-    await dbContext.SaveChangesAsync();
-    return Results.Ok(existingBrewlog);
+    await next();
 });
 
-app.MapDelete("/brewlogs/{id}", async (int id, BrewlogsDbContext dbContext) =>
-{
-    var brewlog = await dbContext.Brewlogs.FindAsync(id);
-    if (brewlog == null)
-    {
-        return Results.NotFound();
-    }
-
-    dbContext.Brewlogs.Remove(brewlog);
-    await dbContext.SaveChangesAsync();
-    return Results.NoContent();
-});
+app.MapControllers();
 
 app.Run();

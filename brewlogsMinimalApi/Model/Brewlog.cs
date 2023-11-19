@@ -6,8 +6,8 @@ namespace brewlogsMinimalApi.Model;
 
 public class Brewlog
 {
-    [Key]
-    public int Id { get; set; }
+    [Key] public Guid Id { get; set; }
+    public required string Author { get; set; }
     public string? CoffeeName { get; set; }
     public int Dose { get; set; }
     public string? Grind { get; set; }
@@ -23,4 +23,3 @@ public class Brewlog
     [JsonIgnore]
     public DateTime? LastUpdated { get; set; }
 }
-

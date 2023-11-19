@@ -21,9 +21,13 @@ namespace brewlogsMinimalApi.Migrations
 
             modelBuilder.Entity("brewlogsMinimalApi.Model.Brewlog", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Author")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<int>("BrewRatio")
                         .HasColumnType("int");
@@ -54,38 +58,6 @@ namespace brewlogsMinimalApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Brewlogs");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            BrewRatio = 15,
-                            BrewerUsed = "AeroPress",
-                            CoffeeName = "Mugshots Chiapas",
-                            Dose = 20,
-                            Grind = "Medium",
-                            Roast = "Medium"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            BrewRatio = 16,
-                            BrewerUsed = "Pour-Over",
-                            CoffeeName = "Caribou Light Roast",
-                            Dose = 18,
-                            Grind = "Fine",
-                            Roast = "Light"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            BrewRatio = 16,
-                            BrewerUsed = "Pour-Over",
-                            CoffeeName = "Five Watt Guatemala",
-                            Dose = 18,
-                            Grind = "Fine",
-                            Roast = "Light"
-                        });
                 });
 #pragma warning restore 612, 618
         }
