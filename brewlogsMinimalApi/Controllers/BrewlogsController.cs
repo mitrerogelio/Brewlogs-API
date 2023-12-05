@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using brewlogsMinimalApi.Data;
 using brewlogsMinimalApi.Model;
 using Microsoft.AspNetCore.Mvc;
@@ -24,10 +23,10 @@ public class BrewlogsController : ControllerBase
         return Ok(brewlogs);
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetBrewlog(int id)
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetBrewlog(Guid id)
     {
-        var brewlog = await _dbContext.Brewlogs.FindAsync(id);
+        Brewlog? brewlog = await _dbContext.Brewlogs.FindAsync(id);
         if (brewlog == null)
         {
             return NotFound();
@@ -39,23 +38,15 @@ public class BrewlogsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateBrewlog(Brewlog brewlog)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (string.IsNullOrEmpty(userId))
-        {
-            return BadRequest("Unable to determine User ID. Something may be wrong with the request.");
-        }
-        
-        brewlog.Author = userId;
         _dbContext.Brewlogs.Add(brewlog);
         await _dbContext.SaveChangesAsync();
         return Created($"/api/brewlogs/{brewlog.Id}", brewlog);
     }
 
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateBrewlog(int id, Brewlog updatedBrewlog)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> UpdateBrewlog(Guid id, Brewlog updatedBrewlog)
     {
-        var existingBrewlog = await _dbContext.Brewlogs.FindAsync(id);
+        Brewlog? existingBrewlog = await _dbContext.Brewlogs.FindAsync(id);
         if (existingBrewlog == null)
         {
             return NotFound();
@@ -72,10 +63,10 @@ public class BrewlogsController : ControllerBase
         return Ok(existingBrewlog);
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> DeleteBrewlog(int id)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteBrewlog(Guid id)
     {
-        var brewlog = await _dbContext.Brewlogs.FindAsync(id);
+        Brewlog? brewlog = await _dbContext.Brewlogs.FindAsync(id);
         if (brewlog == null)
         {
             return NotFound();

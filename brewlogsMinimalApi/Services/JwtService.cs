@@ -22,16 +22,16 @@ public class JwtService
 
     public string GenerateJwtToken(string userId)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var secretKey = _configuration["secretKey"];
+        JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+        string? secretKey = _configuration["secretKey"];
 
         if (string.IsNullOrEmpty(secretKey))
         {
             throw new InvalidOperationException("Secret key is not defined in user secrets.");
         }
 
-        var keyBytes = Encoding.UTF8.GetBytes(secretKey);
-        var tokenDescriptor = new SecurityTokenDescriptor
+        byte[] keyBytes = Encoding.UTF8.GetBytes(secretKey);
+        SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
         {
             Issuer = _issuer,
             Subject = new ClaimsIdentity(new[]
@@ -44,7 +44,7 @@ public class JwtService
             Audience = string.Join(",", _validAudiences)
         };
 
-        var token = tokenHandler.CreateToken(tokenDescriptor);
+        SecurityToken? token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
 }

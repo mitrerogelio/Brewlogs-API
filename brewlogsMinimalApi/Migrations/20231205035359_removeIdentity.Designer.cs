@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using brewlogsMinimalApi.Data;
 
@@ -10,9 +11,11 @@ using brewlogsMinimalApi.Data;
 namespace brewlogsMinimalApi.Migrations
 {
     [DbContext(typeof(BrewlogsDbContext))]
-    partial class BrewlogsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231205035359_removeIdentity")]
+    partial class removeIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
