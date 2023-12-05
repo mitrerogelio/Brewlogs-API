@@ -1,4 +1,6 @@
+using AutoMapper;
 using brewlogsMinimalApi.Data;
+using brewlogsMinimalApi.Dtos;
 using brewlogsMinimalApi.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +12,12 @@ namespace brewlogsMinimalApi.Controllers;
 public class BrewlogsController : ControllerBase
 {
     private readonly BrewlogsDbContext _dbContext;
+    private readonly IMapper _mapper;
 
-    public BrewlogsController(BrewlogsDbContext dbContext)
+    public BrewlogsController(BrewlogsDbContext dbContext, IMapper mapper)
     {
         _dbContext = dbContext;
+        _mapper = mapper;
     }
 
     [HttpGet]
@@ -36,11 +40,26 @@ public class BrewlogsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateBrewlog(Brewlog brewlog)
+    public async Task<IActionResult> CreateBrewlog(BrewlogDto brewlogDto)
     {
-        _dbContext.Brewlogs.Add(brewlog);
-        await _dbContext.SaveChangesAsync();
-        return Created($"/api/brewlogs/{brewlog.Id}", brewlog);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        Brewlog brewlogEntity = _mapper.Map<Brewlog>(brewlogDto);
+        _dbContext.Brewlogs.Add(brewlogEntity);
+
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Internal Server Error: " + ex.Message);
+        }
+
+        return CreatedAtAction("GetBrewlog", new { id = brewlogEntity.Id }, brewlogEntity);
     }
 
     [HttpPut("{id:guid}")]
