@@ -1,10 +1,10 @@
 using brewlogsMinimalApi.Data;
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Configuration
-var configuration = new ConfigurationBuilder()
+new ConfigurationBuilder()
     .SetBasePath(Environment.CurrentDirectory)
     .AddJsonFile("appsettings.Development.json")
     .Build();
