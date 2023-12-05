@@ -1,6 +1,5 @@
 using brewlogsMinimalApi.Data;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
 using brewlogsMinimalApi.Mappers;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -46,6 +45,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IBrewlogRepository, BrewlogRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

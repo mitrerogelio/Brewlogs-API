@@ -3,7 +3,6 @@ using brewlogsMinimalApi.Data;
 using brewlogsMinimalApi.Dtos;
 using brewlogsMinimalApi.Model;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace brewlogsMinimalApi.Controllers;
 
@@ -11,26 +10,31 @@ namespace brewlogsMinimalApi.Controllers;
 [Route("api/brewlogs")]
 public class BrewlogsController : ControllerBase
 {
-    private readonly BrewlogsDbContext _dbContext;
+    private readonly IBrewlogRepository _repository;
     private readonly IMapper _mapper;
 
-    public BrewlogsController(BrewlogsDbContext dbContext, IMapper mapper)
+    public BrewlogsController(IBrewlogRepository repository, IMapper mapper)
     {
-        _dbContext = dbContext;
+        _repository = repository;
         _mapper = mapper;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetBrewlogs()
     {
-        var brewlogs = await _dbContext.Brewlogs.ToListAsync();
+        List<Brewlog> brewlogs = await _repository.GetBrewlogs();
+        if (brewlogs == null)
+        {
+            return NotFound();
+        }
         return Ok(brewlogs);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetBrewlog(Guid id)
     {
-        Brewlog? brewlog = await _dbContext.Brewlogs.FindAsync(id);
+        Brewlog? brewlog = await _repository.GetBrewlog(id);
+
         if (brewlog == null)
         {
             return NotFound();
@@ -48,11 +52,11 @@ public class BrewlogsController : ControllerBase
         }
 
         Brewlog brewlogEntity = _mapper.Map<Brewlog>(brewlogDto);
-        _dbContext.Brewlogs.Add(brewlogEntity);
+        _repository.AddEntity(brewlogEntity);
 
         try
         {
-            await _dbContext.SaveChangesAsync();
+            await _repository.SaveChangesAsync();
         }
         catch (Exception ex)
         {
@@ -65,7 +69,7 @@ public class BrewlogsController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateBrewlog(Guid id, Brewlog updatedBrewlog)
     {
-        Brewlog? existingBrewlog = await _dbContext.Brewlogs.FindAsync(id);
+        Brewlog? existingBrewlog = await _repository.GetBrewlog(id);
         if (existingBrewlog == null)
         {
             return NotFound();
@@ -78,21 +82,21 @@ public class BrewlogsController : ControllerBase
         existingBrewlog.Roast = updatedBrewlog.Roast;
         existingBrewlog.BrewerUsed = updatedBrewlog.BrewerUsed;
 
-        await _dbContext.SaveChangesAsync();
+        await _repository.SaveChangesAsync();
         return Ok(existingBrewlog);
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteBrewlog(Guid id)
     {
-        Brewlog? brewlog = await _dbContext.Brewlogs.FindAsync(id);
+        Brewlog? brewlog = await _repository.GetBrewlog(id);
         if (brewlog == null)
         {
             return NotFound();
         }
 
-        _dbContext.Brewlogs.Remove(brewlog);
-        await _dbContext.SaveChangesAsync();
+        _repository.RemoveEntity(brewlog);
+        await _repository.SaveChangesAsync();
         return NoContent();
     }
 }
