@@ -33,12 +33,12 @@ public class BrewlogRepository : IBrewlogRepository
         }
     }
 
-    public async Task<List<Brewlog>> GetBrewlogs()
+    public async Task<List<Brewlog>?> GetBrewlogs()
     {
         return await _context.Brewlogs.ToListAsync();
     }
 
-    public async Task<Brewlog> GetBrewlog(Guid id)
+    public async Task<Brewlog?> GetBrewlog(Guid id)
     {
         return await _context.Brewlogs.FindAsync(id);
     }

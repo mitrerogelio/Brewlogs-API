@@ -22,7 +22,7 @@ public class BrewlogsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetBrewlogs()
     {
-        List<Brewlog> brewlogs = await _repository.GetBrewlogs();
+        List<Brewlog>? brewlogs = await _repository.GetBrewlogs();
         if (brewlogs == null)
         {
             return NotFound();

@@ -6,7 +6,7 @@ namespace brewlogsMinimalApi.Model;
 
 public class Brewlog
 {
-    [Key] public Guid Id { get; set; }
+    [Key] public Guid Id { get; init; }
     public string CoffeeName { get; set; } = "";
     public int Dose { get; set; }
     public string Grind { get; set; } = "";
@@ -16,9 +16,9 @@ public class Brewlog
 
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     [JsonIgnore]
-    public DateTime? CreatedAt { get; set; }
+    public DateTime? CreatedAt { get; init; }
 
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     [JsonIgnore]
-    public DateTime? LastUpdated { get; set; }
+    public DateTime? LastUpdated { get; init; }
 }
