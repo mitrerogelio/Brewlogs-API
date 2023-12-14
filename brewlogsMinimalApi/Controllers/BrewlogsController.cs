@@ -1,7 +1,4 @@
-using AutoMapper;
 using brewlogsMinimalApi.Data;
-using brewlogsMinimalApi.Dtos;
-using brewlogsMinimalApi.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace brewlogsMinimalApi.Controllers;
@@ -10,15 +7,20 @@ namespace brewlogsMinimalApi.Controllers;
 [Route("api/brewlogs")]
 public class BrewlogsController : ControllerBase
 {
-    private readonly IBrewlogRepository _repository;
-    private readonly IMapper _mapper;
+    private readonly DbContext _dapper;
 
-    public BrewlogsController(IBrewlogRepository repository, IMapper mapper)
+    public BrewlogsController(IConfiguration config)
     {
-        _repository = repository;
-        _mapper = mapper;
+        _dapper = new DbContext(config);
     }
 
+    [HttpGet("test")]
+    public DateTime Test()
+    {
+        return _dapper.LoadDataSingle<DateTime>("SELECT GETDATE()");
+    }
+
+    /*
     [HttpGet]
     public async Task<IActionResult> GetBrewlogs()
     {
@@ -99,4 +101,5 @@ public class BrewlogsController : ControllerBase
         await _repository.SaveChangesAsync();
         return NoContent();
     }
+*/
 }

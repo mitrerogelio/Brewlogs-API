@@ -1,17 +1,39 @@
-using brewlogsMinimalApi.Model;
-using Microsoft.EntityFrameworkCore;
+using System.Data;
+using Dapper;
+using Microsoft.Data.SqlClient;
 
 namespace brewlogsMinimalApi.Data;
 
-public class BrewlogsDbContext : DbContext
+public class DbContext 
 {
-    public IHttpContextAccessor ContextAccessor { get; }
+    private readonly IConfiguration _config;
 
-    public BrewlogsDbContext(DbContextOptions<BrewlogsDbContext> options, IHttpContextAccessor httpContextAccessor)
-        : base(options)
+    public DbContext(IConfiguration config)
     {
-        ContextAccessor = httpContextAccessor;
+        _config = config;
+    }
+    
+    public IEnumerable<T> LoadData<T>(string sql)
+    {
+        IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+        return dbConnection.Query<T>(sql);
     }
 
-    public required DbSet<Brewlog> Brewlogs { get; set; }
+    public T LoadDataSingle<T>(string sql)
+    {
+        IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+        return dbConnection.QuerySingle<T>(sql);
+    }
+
+    public bool ExecuteSql(string sql)
+    {
+        IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+        return dbConnection.Execute(sql) > 0;
+    }
+
+    public int ExecuteSqlWithRowCount(string sql)
+    {
+        IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+        return dbConnection.Execute(sql);
+    }
 }

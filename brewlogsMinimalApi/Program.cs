@@ -1,23 +1,18 @@
-using brewlogsMinimalApi.Data;
-using Microsoft.EntityFrameworkCore;
-using brewlogsMinimalApi.Mappers;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Configuration
+/*
 new ConfigurationBuilder()
     .SetBasePath(Environment.CurrentDirectory)
     .AddJsonFile("appsettings.Development.json")
     .Build();
+    */
 
 // Connection String
-string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // Data
-builder.Services.AddDbContext<BrewlogsDbContext>(options =>
-{
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-});
 
 // CORS Policy
 builder.Services.AddCors(options =>
@@ -43,9 +38,9 @@ builder.Services.AddCors(options =>
 // Controllers
 builder.Services.AddControllers();
 
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+// builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<IBrewlogRepository, BrewlogRepository>();
+// builder.Services.AddScoped<IBrewlogRepository, BrewlogRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
