@@ -1,3 +1,4 @@
+using brewlogsMinimalApi.Mappers;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -38,7 +39,7 @@ builder.Services.AddCors(options =>
 // Controllers
 builder.Services.AddControllers();
 
-// builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddHttpContextAccessor();
 // builder.Services.AddScoped<IBrewlogRepository, BrewlogRepository>();
 builder.Services.AddEndpointsApiExplorer();

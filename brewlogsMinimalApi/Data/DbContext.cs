@@ -31,9 +31,9 @@ public class DbContext
         return dbConnection.Execute(sql) > 0;
     }
 
-    public int ExecuteSqlWithRowCount(string sql)
+    public bool ExecuteSqlWithParameters(string sql, DynamicParameters parameters)
     {
         IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
-        return dbConnection.Execute(sql);
+        return dbConnection.Execute(sql, parameters) > 0;
     }
 }

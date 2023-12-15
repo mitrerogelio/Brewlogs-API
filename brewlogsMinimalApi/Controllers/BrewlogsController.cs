@@ -1,4 +1,9 @@
+using System.Data;
 using brewlogsMinimalApi.Data;
+using brewlogsMinimalApi.Dtos;
+using brewlogsMinimalApi.Mappers;
+using brewlogsMinimalApi.Model;
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace brewlogsMinimalApi.Controllers;
@@ -8,9 +13,11 @@ namespace brewlogsMinimalApi.Controllers;
 public class BrewlogsController : ControllerBase
 {
     private readonly DbContext _dapper;
+    private readonly MappingProfile _mapper;
 
-    public BrewlogsController(IConfiguration config)
+    public BrewlogsController(IConfiguration config, MappingProfile mapper)
     {
+        _mapper = mapper;
         _dapper = new DbContext(config);
     }
 
@@ -19,6 +26,40 @@ public class BrewlogsController : ControllerBase
     {
         return _dapper.LoadDataSingle<DateTime>("SELECT GETDATE()");
     }
+
+
+    [HttpPost]
+    public IActionResult UpsertBrewlog(BrewlogDto brewlogDto)
+    {
+        int authorId = int.Parse(this.User.FindFirst("userId")?.Value ?? "");
+
+        const string sql = """
+                           EXEC BrewData.spBrewlogs_Upsert
+                                               @Id=@IdParameter,
+                                               @Author=@AuthorParameter,
+                                               @CoffeeName=@CoffeeNameParameter,
+                                               @Dose=@DoseParameter,
+                                               @Grind=@GrindParameter,
+                                               @BrewRatio=@BrewRatioParameter,
+                                               @Roast=@RoastParameter,
+                                               @BrewerUsed=@BrewerUsedParameter
+                           """;
+
+        DynamicParameters sqlParameters = new DynamicParameters();
+        sqlParameters.Add("@IdParameter", brewlogDto.Id, DbType.Int32);
+        sqlParameters.Add("@AuthorParameter", authorId, DbType.Int32);
+        sqlParameters.Add("@CoffeeNameParameter", brewlogDto.CoffeeName, DbType.String);
+        sqlParameters.Add("@DoseParameter", brewlogDto.Dose, DbType.Int32);
+        sqlParameters.Add("@GrindParameter", brewlogDto.Grind, DbType.String);
+        sqlParameters.Add("@BrewRatioParameter", brewlogDto.BrewRatio, DbType.Int32);
+        sqlParameters.Add("@RoastParameter", brewlogDto.Roast, DbType.String);
+        sqlParameters.Add("@BrewerUsedParameter", brewlogDto.BrewerUsed, DbType.String);
+
+        bool result = _dapper.ExecuteSqlWithParameters(sql, sqlParameters);
+
+        return result ? Ok() : StatusCode(500);
+    }
+
 
     /*
     [HttpGet]
@@ -43,29 +84,6 @@ public class BrewlogsController : ControllerBase
         }
 
         return Ok(brewlog);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> CreateBrewlog(BrewlogDto brewlogDto)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        Brewlog brewlogEntity = _mapper.Map<Brewlog>(brewlogDto);
-        _repository.AddEntity(brewlogEntity);
-
-        try
-        {
-            await _repository.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "Internal Server Error: " + ex.Message);
-        }
-
-        return CreatedAtAction("GetBrewlog", new { id = brewlogEntity.Id }, brewlogEntity);
     }
 
     [HttpPut("{id:guid}")]
