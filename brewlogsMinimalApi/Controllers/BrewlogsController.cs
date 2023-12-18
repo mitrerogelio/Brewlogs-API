@@ -1,8 +1,6 @@
 using System.Data;
 using brewlogsMinimalApi.Data;
 using brewlogsMinimalApi.Dtos;
-using brewlogsMinimalApi.Mappers;
-using brewlogsMinimalApi.Model;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,11 +11,9 @@ namespace brewlogsMinimalApi.Controllers;
 public class BrewlogsController : ControllerBase
 {
     private readonly DbContext _dapper;
-    private readonly MappingProfile _mapper;
 
-    public BrewlogsController(IConfiguration config, MappingProfile mapper)
+    public BrewlogsController(IConfiguration config)
     {
-        _mapper = mapper;
         _dapper = new DbContext(config);
     }
 

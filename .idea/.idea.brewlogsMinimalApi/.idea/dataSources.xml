@@ -6,6 +6,9 @@
       <synchronize>true</synchronize>
       <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
       <jdbc-url>jdbc:sqlserver://localhost;database=BrewlogsDB</jdbc-url>
+      <jdbc-additional-properties>
+        <property name="APPROVED_DRIVER" value="sqlserver.ms" />
+      </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
