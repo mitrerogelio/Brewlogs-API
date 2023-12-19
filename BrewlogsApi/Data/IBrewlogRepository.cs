@@ -1,6 +1,6 @@
-﻿using brewlogsMinimalApi.Model;
+﻿/*using BrewlogsApi.Model;
 
-namespace brewlogsMinimalApi.Data;
+namespace BrewlogsApi.Data;
 
 public interface IBrewlogRepository
 {
@@ -10,5 +10,5 @@ public interface IBrewlogRepository
     public void RemoveEntity<T>(T entity);
     public Task<List<Brewlog>?> GetBrewlogs();
     public Task<Brewlog?> GetBrewlog(Guid id);
-*/
-}
+#1#
+}*/

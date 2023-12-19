@@ -3,13 +3,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using brewlogsMinimalApi.Data;
-using brewlogsMinimalApi.Dtos;
+using BrewlogsApi.Data;
+using BrewlogsApi.Dtos;
 using Dapper;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.IdentityModel.Tokens;
 
-namespace brewlogsMinimalApi.Helpers;
+namespace BrewlogsApi.Helpers;
 
 public class AuthHelper
 {

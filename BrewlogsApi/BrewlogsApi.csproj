@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
       <UserSecretsId>535247e9-a0d1-4937-802e-90eaef57d93b</UserSecretsId>
+      <RootNamespace>BrewlogsApi</RootNamespace>
   </PropertyGroup>
 
     <ItemGroup>

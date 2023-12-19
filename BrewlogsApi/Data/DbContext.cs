@@ -2,7 +2,7 @@ using System.Data;
 using Dapper;
 using Microsoft.Data.SqlClient;
 
-namespace brewlogsMinimalApi.Data;
+namespace BrewlogsApi.Data;
 
 public class DbContext
 {

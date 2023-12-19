@@ -1,11 +1,8 @@
-using System.ComponentModel.DataAnnotations;
+﻿namespace BrewlogsApi.Dtos;
 
-namespace brewlogsMinimalApi.Model;
-
-public class Brewlog
+public class BrewlogDto
 {
-    [Key] public int Id { get; init; }
-    public int Author { get; init; }
+    public int Id { get; set; }
     public string CoffeeName { get; set; } = "";
     public int Dose { get; set; }
     public string Grind { get; set; } = "";

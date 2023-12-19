@@ -1,9 +1,9 @@
 using System.Data;
-using brewlogsMinimalApi.Data;
-using brewlogsMinimalApi.Model;
+using BrewlogsApi.Data;
+using BrewlogsApi.Model;
 using Dapper;
 
-namespace brewlogsMinimalApi.Helpers;
+namespace BrewlogsApi.Helpers;
 
 public class SqlHelper
 {

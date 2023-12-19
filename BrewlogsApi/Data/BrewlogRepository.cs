@@ -1,6 +1,6 @@
-﻿/*using brewlogsMinimalApi.Model;
+﻿/*using BrewlogsApi.Model;
 
-namespace brewlogsMinimalApi.Data;
+namespace BrewlogsApi.Data;
 
 public class BrewlogRepository : IBrewlogRepository
 {

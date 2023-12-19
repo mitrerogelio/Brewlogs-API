@@ -1,4 +1,4 @@
-namespace brewlogsMinimalApi.Dtos;
+namespace BrewlogsApi.Dtos;
 
 public class AccountForRegistrationDto
 {

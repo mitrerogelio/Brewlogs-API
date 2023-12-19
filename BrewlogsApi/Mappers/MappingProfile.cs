@@ -1,7 +1,7 @@
-﻿using brewlogsMinimalApi.Dtos;
-using brewlogsMinimalApi.Model;
+﻿using BrewlogsApi.Dtos;
+using BrewlogsApi.Model;
 
-namespace brewlogsMinimalApi.Mappers;
+namespace BrewlogsApi.Mappers;
 
 using AutoMapper;
 
