@@ -29,7 +29,7 @@ public class AuthController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("/register")]
+    [HttpPost("/Register")]
     public IActionResult Register(AccountForRegistrationDto account)
     {
         if (account.Password != account.PasswordConfirm) return BadRequest("Passwords do not match!");
@@ -58,7 +58,7 @@ public class AuthController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("/login")]
+    [HttpPost("/Login")]
     public IActionResult Login(UserForLoginDto loginUser)
     {
         const string sqlForHashAndSalt = """
@@ -94,7 +94,18 @@ public class AuthController : ControllerBase
         });
     }
 
-    [HttpGet("token")]
+    [HttpPut("PasswordReset")]
+    public IActionResult ResetPassword(UserForLoginDto userForPasswordReset)
+    {
+        if (_authHelper.SetPassword(userForPasswordReset))
+        {
+            return Ok();
+        }
+
+        return BadRequest();
+    }
+
+    [HttpGet("RefreshToken")]
     public string RefreshToken()
     {
         string userIdSql = """

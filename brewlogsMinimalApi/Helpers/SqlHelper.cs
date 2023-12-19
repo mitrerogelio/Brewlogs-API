@@ -16,12 +16,14 @@ public class SqlHelper
 
     public bool UpsertUser(Account user)
     {
-        string sql = @"EXEC BrewData.spUser_Upsert
-                @UserId = @UserIdParameter,
-                @FirstName = @FirstNameParameter, 
-                @LastName = @LastNameParameter, 
-                @Email = @EmailParameter, 
-                @Active = @ActiveParameter";
+        const string sql = """
+                           EXEC BrewData.spUser_Upsert
+                                           @UserId = @UserIdParameter,
+                                           @FirstName = @FirstNameParameter,
+                                           @LastName = @LastNameParameter,
+                                           @Email = @EmailParameter,
+                                           @Active = @ActiveParameter
+                           """;
 
         DynamicParameters sqlParameters = new();
 

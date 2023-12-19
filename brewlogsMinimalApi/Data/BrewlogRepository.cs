@@ -1,4 +1,4 @@
-﻿using brewlogsMinimalApi.Model;
+﻿/*using brewlogsMinimalApi.Model;
 
 namespace brewlogsMinimalApi.Data;
 
@@ -31,5 +31,5 @@ public class BrewlogRepository : IBrewlogRepository
     public async Task<Brewlog?> GetBrewlog(Guid id)
     {
     }
-*/
-}
+#1#
+}*/
