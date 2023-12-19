@@ -4,7 +4,7 @@ using Microsoft.Data.SqlClient;
 
 namespace brewlogsMinimalApi.Data;
 
-public class DbContext 
+public class DbContext
 {
     private readonly IConfiguration _config;
 
@@ -12,7 +12,7 @@ public class DbContext
     {
         _config = config;
     }
-    
+
     public IEnumerable<T> LoadData<T>(string sql)
     {
         IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
@@ -35,5 +35,17 @@ public class DbContext
     {
         IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
         return dbConnection.Execute(sql, parameters) > 0;
+    }
+
+    public IEnumerable<T> LoadDataWithParameters<T>(string sql, DynamicParameters parameters)
+    {
+        IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+        return dbConnection.Query<T>(sql, parameters);
+    }
+
+    public T LoadDataSingleWithParameters<T>(string sql, DynamicParameters parameters)
+    {
+        IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+        return dbConnection.QuerySingle<T>(sql, parameters);
     }
 }

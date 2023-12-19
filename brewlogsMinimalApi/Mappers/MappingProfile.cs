@@ -11,5 +11,6 @@ public class MappingProfile : Profile
     {
         // CreateMap<Source, Destination>();
         CreateMap<BrewlogDto, Brewlog>();
+        CreateMap<AccountForRegistrationDto, Account>();
     }
 }

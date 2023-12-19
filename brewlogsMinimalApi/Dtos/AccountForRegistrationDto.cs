@@ -1,6 +1,6 @@
 namespace brewlogsMinimalApi.Dtos;
 
-public partial class AccountForRegistrationDto
+public class AccountForRegistrationDto
 {
     public string FirstName { get; set; } = "";
     public string LastName { get; set; } = "";

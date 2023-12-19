@@ -1,8 +1,10 @@
+using System.Data;
 using AutoMapper;
 using brewlogsMinimalApi.Data;
 using brewlogsMinimalApi.Dtos;
 using brewlogsMinimalApi.Helpers;
 using brewlogsMinimalApi.Model;
+using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -46,12 +48,63 @@ public class AuthController : ControllerBase
         };
 
         if (!_authHelper.SetPassword(userForSetPassword)) return BadRequest("Failed to register user.");
-        
+
         Account userComplete = _mapper.Map<Account>(account);
         userComplete.Active = true;
 
         if (!_sqlHelper.UpsertUser(userComplete)) return StatusCode(500, "Failed to add user.");
 
         return Ok();
+    }
+
+    [AllowAnonymous]
+    [HttpPost("/login")]
+    public IActionResult Login(UserForLoginDto loginUser)
+    {
+        const string sqlForHashAndSalt = """
+                                         EXEC BrewData.spLoginConfirmation_Get
+                                                         @Email = @EmailParam
+                                         """;
+
+        DynamicParameters sqlParameters = new();
+
+        sqlParameters.Add("@EmailParam", loginUser.Email, DbType.String);
+
+        AccountForConfirmationDto userForConfirmation = _dapper
+            .LoadDataSingleWithParameters<AccountForConfirmationDto>(sqlForHashAndSalt, sqlParameters);
+
+        byte[] passwordHash = _authHelper.GetPasswordHash(loginUser.Password, userForConfirmation.PasswordSalt);
+
+        if (passwordHash.Where((t, index) => t != userForConfirmation.PasswordHash[index]).Any())
+        {
+            return StatusCode(401, "Incorrect password!");
+        }
+
+        string userIdSql = """
+                           
+                                           SELECT UserId FROM BrewData.Users WHERE Email = '
+                           """ +
+                           loginUser.Email + "'";
+
+        int userId = _dapper.LoadDataSingle<int>(userIdSql);
+
+        return Ok(new Dictionary<string, string>
+        {
+            { "token", _authHelper.CreateToken(userId) }
+        });
+    }
+
+    [HttpGet("token")]
+    public string RefreshToken()
+    {
+        string userIdSql = """
+                           
+                                           SELECT UserId FROM BrewData.Users WHERE UserId = '
+                           """ +
+                           User.FindFirst("userId")?.Value + "'";
+
+        int userId = _dapper.LoadDataSingle<int>(userIdSql);
+
+        return _authHelper.CreateToken(userId);
     }
 }

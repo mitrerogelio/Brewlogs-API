@@ -22,7 +22,7 @@ public class AuthHelper
         _config = config;
     }
 
-    private byte[] GetPasswordHash(string password, byte[] passwordSalt)
+    public byte[] GetPasswordHash(string password, byte[] passwordSalt)
     {
         string passwordSaltPlusString = _config.GetSection("AppSettings:PasswordKey").Value +
                                         Convert.ToBase64String(passwordSalt);
