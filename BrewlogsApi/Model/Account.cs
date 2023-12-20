@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace brewlogsMinimalApi.Model;
+namespace BrewlogsApi.Model;
 
 public class Account
 {

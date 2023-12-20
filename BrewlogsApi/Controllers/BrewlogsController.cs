@@ -1,10 +1,10 @@
 using System.Data;
-using brewlogsMinimalApi.Data;
-using brewlogsMinimalApi.Dtos;
+using BrewlogsApi.Data;
+using BrewlogsApi.Dtos;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 
-namespace brewlogsMinimalApi.Controllers;
+namespace BrewlogsApi.Controllers;
 
 [ApiController]
 [Route("api/brewlogs")]

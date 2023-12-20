@@ -1,5 +1,5 @@
 using System.Text;
-using brewlogsMinimalApi.Mappers;
+using BrewlogsApi.Mappers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 

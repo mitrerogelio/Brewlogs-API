@@ -1,14 +1,14 @@
 using System.Data;
 using AutoMapper;
-using brewlogsMinimalApi.Data;
-using brewlogsMinimalApi.Dtos;
-using brewlogsMinimalApi.Helpers;
-using brewlogsMinimalApi.Model;
+using BrewlogsApi.Data;
+using BrewlogsApi.Dtos;
+using BrewlogsApi.Helpers;
+using BrewlogsApi.Model;
 using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace brewlogsMinimalApi.Controllers;
+namespace BrewlogsApi.Controllers;
 
 [Authorize]
 [ApiController]
@@ -102,11 +102,11 @@ public class AuthController : ControllerBase
             return Ok();
         }
 
-        return BadRequest();
+        return Forbid();
     }
 
     [HttpGet("RefreshToken")]
-    public string RefreshToken()
+    public IActionResult RefreshToken()
     {
         string userIdSql = """
                            
@@ -116,6 +116,10 @@ public class AuthController : ControllerBase
 
         int userId = _dapper.LoadDataSingle<int>(userIdSql);
 
-        return _authHelper.CreateToken(userId);
+        if (userId <= 0)
+            return Unauthorized(new { error = "Authentication failed", message = "Please check your credentials." });
+        
+        string newToken = _authHelper.CreateToken(userId);
+        return Ok(new { token = newToken });
     }
 }
