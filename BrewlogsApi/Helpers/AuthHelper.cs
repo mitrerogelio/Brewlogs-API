@@ -56,13 +56,22 @@ public class AuthHelper
             tokenKey,
             SecurityAlgorithms.HmacSha512Signature
         );
+        
+        IConfigurationSection validAudiencesSection = _config.GetSection("Authentication:Schemes:Bearer:ValidAudiences");
+        string[] validAudiences = validAudiencesSection.Get<string[]>() ?? Array.Empty<string>();
 
         SecurityTokenDescriptor descriptor = new()
         {
             Subject = new ClaimsIdentity(claims),
             SigningCredentials = credentials,
-            Expires = DateTime.Now.AddDays(1)
+            Expires = DateTime.Now.AddDays(1),
+            Issuer = _config.GetSection("Authentication:Schemes:Bearer:ValidIssuer").Value
         };
+        
+        foreach (string audience in validAudiences)
+        {
+            descriptor.Audience ??= audience;
+        }
 
         JwtSecurityTokenHandler tokenHandler = new();
 
@@ -80,11 +89,6 @@ public class AuthHelper
         }
 
         byte[] passwordHash = GetPasswordHash(userForSetPassword.Password, passwordSalt);
-
-        Console.WriteLine("0x" + BitConverter.ToString(passwordHash).Replace("-", ""));
-        Console.WriteLine(Encoding.UTF8.GetString(passwordHash, 0, passwordHash.Length));
-        Console.WriteLine(Encoding.UTF8.GetString(passwordHash));
-        Console.WriteLine(Convert.ToBase64String(passwordHash));
 
         const string sqlAddAuth = """
                                   EXEC BrewData.spRegistration_Upsert
