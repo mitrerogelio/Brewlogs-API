@@ -95,14 +95,16 @@ public class AuthController : ControllerBase
     }
 
     [HttpPut("PasswordReset")]
-    public IActionResult ResetPassword(UserForLoginDto userForPasswordReset)
+    public IActionResult ResetPassword(UserForPasswordResetDto userForPasswordReset)
     {
-        if (_authHelper.SetPassword(userForPasswordReset))
+        string userId = User.FindFirst("userId")!.Value;
+        
+        if (_authHelper.ResetPassword(userForPasswordReset, userId))
         {
             return Ok();
         }
 
-        return Forbid();
+        return BadRequest("Failed to reset password");
     }
 
     [HttpGet("RefreshToken")]

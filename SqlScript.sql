@@ -87,6 +87,30 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROCEDURE BrewData.spPasswordReset
+    @UserId INT,
+    @Email NVARCHAR(50),
+    @NewPasswordHash VARBINARY(MAX),
+    @NewPasswordSalt VARBINARY(MAX)
+AS
+BEGIN
+    IF EXISTS (SELECT 1
+               FROM BrewData.Users
+               WHERE UserId = @UserId AND Email = @Email)
+        BEGIN
+            -- Update the password
+            UPDATE BrewData.Auth
+            SET PasswordHash = @NewPasswordHash,
+                PasswordSalt = @NewPasswordSalt
+            WHERE Email = @Email;
+        END
+    ELSE
+        BEGIN
+            THROW 50001, 'The user ID does not match the provided email address.', 1;
+        END
+END
+GO
+
 -- Create spLoginConfirmation_Get stored procedure
 CREATE OR ALTER PROCEDURE BrewData.spLoginConfirmation_Get @Email NVARCHAR(50)
 AS

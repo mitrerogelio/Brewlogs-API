@@ -105,4 +105,25 @@ public class AuthHelper
 
         return _dapper.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters);
     }
+
+    public bool ResetPassword(UserForPasswordResetDto userForResetPassword, string userId)
+    {
+        byte[] passwordSalt = new byte[128 / 8];
+        using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+        {
+            rng.GetNonZeroBytes(passwordSalt);
+        }
+
+        byte[] passwordHash = GetPasswordHash(userForResetPassword.NewPassword, passwordSalt);
+
+        const string sqlUpdatePassword = "EXEC BrewData.spPasswordReset @UserId, @Email, @NewPasswordHash, @NewPasswordSalt";
+
+        DynamicParameters sqlParameters = new();
+        sqlParameters.Add("@UserId", userId, DbType.Int32);
+        sqlParameters.Add("@Email", userForResetPassword.Email, DbType.String);
+        sqlParameters.Add("@NewPasswordHash", passwordHash, DbType.Binary);
+        sqlParameters.Add("@NewPasswordSalt", passwordSalt, DbType.Binary);
+
+        return _dapper.ExecuteSqlWithParameters(sqlUpdatePassword, sqlParameters);
+    }
 }
