@@ -8,4 +8,4 @@ appsettings.json
 appsettings.Development.json
 /BrewlogsApi/appsettings.json
 /BrewlogsApi/appsettings.Development.json
-/BrewlogsApi/HttpRequests/*
+/BrewlogsApi/HttpRequests/
