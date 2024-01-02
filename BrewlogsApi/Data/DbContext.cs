@@ -13,12 +13,6 @@ public class DbContext
         _config = config;
     }
 
-    public IEnumerable<T> LoadData<T>(string sql)
-    {
-        IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
-        return dbConnection.Query<T>(sql);
-    }
-
     public T LoadDataSingle<T>(string sql)
     {
         IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
@@ -35,6 +29,12 @@ public class DbContext
     {
         IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
         return dbConnection.Execute(sql, parameters) > 0;
+    }
+    
+    public int ExecuteScalarSqlWithParameters(string sql, DynamicParameters parameters)
+    {
+        using IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+        return dbConnection.ExecuteScalar<int>(sql, parameters);
     }
 
     public IEnumerable<T> LoadDataWithParameters<T>(string sql, DynamicParameters parameters)

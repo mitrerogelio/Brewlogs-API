@@ -36,6 +36,15 @@ public class AuthHelper
         );
     }
 
+    public bool UserExists(string userEmail)
+    {
+        const string sqlToExecute = "SELECT COUNT(*) FROM BrewData.Users WHERE Email = @Email";
+        DynamicParameters sqlParam = new();
+        sqlParam.Add("@Email", userEmail, DbType.String, ParameterDirection.Input);
+
+        int count = _dapper.ExecuteScalarSqlWithParameters(sqlToExecute, sqlParam);
+        return count > 0;
+    }
 
     public string CreateToken(int userId)
     {
