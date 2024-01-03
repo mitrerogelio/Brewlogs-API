@@ -41,7 +41,7 @@ CREATE TABLE BrewData.Brewlogs
     Grind      NVARCHAR(100),
     BrewRatio  INT           NOT NULL,
     Roast      NVARCHAR(100),
-    BrewerUsed NVARCHAR(50),
+    BrewerUsed NVARCHAR(50) NOT NULL,
     FOREIGN KEY (Author) REFERENCES BrewData.Users (UserId)
 );
 GO

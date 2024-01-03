@@ -17,13 +17,6 @@ public class BrewlogsController : ControllerBase
         _dapper = new DbContext(config);
     }
 
-    [HttpGet("test")]
-    public DateTime Test()
-    {
-        return _dapper.LoadDataSingle<DateTime>("SELECT GETDATE()");
-    }
-
-
     [HttpPost]
     public IActionResult UpsertBrewlog(BrewlogDto brewlogDto)
     {
