@@ -36,6 +36,15 @@ public class AuthHelper
         );
     }
 
+    public bool UserExists(string userEmail)
+    {
+        const string sqlToExecute = "SELECT COUNT(*) FROM BrewData.Users WHERE Email = @Email";
+        DynamicParameters sqlParam = new();
+        sqlParam.Add("@Email", userEmail, DbType.String, ParameterDirection.Input);
+
+        int count = _dapper.ExecuteScalarSqlWithParameters(sqlToExecute, sqlParam);
+        return count > 0;
+    }
 
     public string CreateToken(int userId)
     {
@@ -104,5 +113,26 @@ public class AuthHelper
         sqlParameters.Add("@PasswordSaltParam", passwordSalt, DbType.Binary);
 
         return _dapper.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters);
+    }
+
+    public bool ResetPassword(UserForPasswordResetDto userForResetPassword, string userId)
+    {
+        byte[] passwordSalt = new byte[128 / 8];
+        using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+        {
+            rng.GetNonZeroBytes(passwordSalt);
+        }
+
+        byte[] passwordHash = GetPasswordHash(userForResetPassword.NewPassword, passwordSalt);
+
+        const string sqlUpdatePassword = "EXEC BrewData.spPasswordReset @UserId, @Email, @NewPasswordHash, @NewPasswordSalt";
+
+        DynamicParameters sqlParameters = new();
+        sqlParameters.Add("@UserId", userId, DbType.Int32);
+        sqlParameters.Add("@Email", userForResetPassword.Email, DbType.String);
+        sqlParameters.Add("@NewPasswordHash", passwordHash, DbType.Binary);
+        sqlParameters.Add("@NewPasswordSalt", passwordSalt, DbType.Binary);
+
+        return _dapper.ExecuteSqlWithParameters(sqlUpdatePassword, sqlParameters);
     }
 }

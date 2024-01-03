@@ -34,12 +34,7 @@ public class AuthController : ControllerBase
     {
         if (account.Password != account.PasswordConfirm) return BadRequest("Passwords do not match!");
 
-        string sqlCheckUserExists = "SELECT Email FROM BrewData.Auth WHERE Email = '" +
-                                    account.Email + "'";
-
-        IEnumerable<string> existingUsers = _dapper.LoadData<string>(sqlCheckUserExists);
-
-        if (existingUsers.Any()) return Conflict("User with this email already exists!");
+        if (_authHelper.UserExists(account.Email)) return BadRequest("Email already exists.");
 
         UserForLoginDto userForSetPassword = new()
         {
@@ -95,14 +90,16 @@ public class AuthController : ControllerBase
     }
 
     [HttpPut("PasswordReset")]
-    public IActionResult ResetPassword(UserForLoginDto userForPasswordReset)
+    public IActionResult ResetPassword(UserForPasswordResetDto userForPasswordReset)
     {
-        if (_authHelper.SetPassword(userForPasswordReset))
+        string userId = User.FindFirst("userId")!.Value;
+
+        if (_authHelper.ResetPassword(userForPasswordReset, userId))
         {
             return Ok();
         }
 
-        return Forbid();
+        return BadRequest("Failed to reset password");
     }
 
     [HttpGet("RefreshToken")]
@@ -118,7 +115,7 @@ public class AuthController : ControllerBase
 
         if (userId <= 0)
             return Unauthorized(new { error = "Authentication failed", message = "Please check your credentials." });
-        
+
         string newToken = _authHelper.CreateToken(userId);
         return Ok(new { token = newToken });
     }
