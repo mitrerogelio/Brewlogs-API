@@ -34,7 +34,7 @@ public class BrewlogsController : ControllerBase
                                                @BrewerUsed=@BrewerUsedParameter
                            """;
 
-        DynamicParameters sqlParameters = new DynamicParameters();
+        DynamicParameters sqlParameters = new();
         sqlParameters.Add("@IdParameter", brewlogDto.Id, DbType.Int32);
         sqlParameters.Add("@AuthorParameter", authorId, DbType.Int32);
         sqlParameters.Add("@CoffeeNameParameter", brewlogDto.CoffeeName, DbType.String);
@@ -49,6 +49,11 @@ public class BrewlogsController : ControllerBase
         return result ? Ok() : StatusCode(500);
     }
 
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetBrewlog(int id)
+    {
+        throw new NotImplementedException();
+    }
 
     /*
     [HttpGet]
@@ -62,18 +67,6 @@ public class BrewlogsController : ControllerBase
         return Ok(brewlogs);
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetBrewlog(Guid id)
-    {
-        Brewlog? brewlog = await _repository.GetBrewlog(id);
-
-        if (brewlog == null)
-        {
-            return NotFound();
-        }
-
-        return Ok(brewlog);
-    }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateBrewlog(Guid id, Brewlog updatedBrewlog)

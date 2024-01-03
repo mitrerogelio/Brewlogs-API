@@ -152,7 +152,9 @@ END;
 GO
 
 -- Create spBrewlogs_Get stored procedure
-CREATE OR ALTER PROCEDURE BrewData.spBrewlogs_Get @Author INT = NULL
+CREATE OR ALTER PROCEDURE BrewData.spBrewlogs_Get 
+    @Author INT = NULL,
+    @BrewlogId INT = NULL
 AS
 BEGIN
     SELECT Brewlogs.Id,
@@ -164,8 +166,8 @@ BEGIN
            Brewlogs.Roast,
            Brewlogs.BrewerUsed
     FROM BrewData.Brewlogs AS Brewlogs
-             JOIN BrewData.Users AS Users ON Users.UserId = Brewlogs.Author
-    WHERE (@Author IS NULL OR Users.UserId = @Author)
+        WHERE Brewlogs.Id = ISNULL(@BrewlogId, Brewlogs.Id)
+        AND Brewlogs.Author = ISNULL(@Author, Brewlogs.Author)
 END;
 GO
 
