@@ -80,13 +80,17 @@ public class AuthHelper
         return tokenHandler.WriteToken(token);
     }
 
-    public bool SetPassword(UserForLoginDto userForSetPassword)
+    private static byte[] CreateSalt()
     {
         byte[] passwordSalt = new byte[128 / 8];
-        using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
-        {
-            rng.GetNonZeroBytes(passwordSalt);
-        }
+        using RandomNumberGenerator rng = RandomNumberGenerator.Create();
+        rng.GetNonZeroBytes(passwordSalt);
+        return passwordSalt;
+    }
+
+    public bool SetPassword(UserForLoginDto userForSetPassword)
+    {
+        byte[] passwordSalt = CreateSalt();
 
         byte[] passwordHash = GetPasswordHash(userForSetPassword.Password, passwordSalt);
 
@@ -106,13 +110,9 @@ public class AuthHelper
         return _dapper.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters);
     }
 
-    public bool ResetPassword(UserForPasswordResetDto userForResetPassword, string userId)
+    public bool ResetPassword(UserForPasswordResetDto userForResetPassword, Claim userId)
     {
-        byte[] passwordSalt = new byte[128 / 8];
-        using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
-        {
-            rng.GetNonZeroBytes(passwordSalt);
-        }
+        byte[] passwordSalt = CreateSalt();
 
         byte[] passwordHash = GetPasswordHash(userForResetPassword.NewPassword, passwordSalt);
 

@@ -1,4 +1,5 @@
 using System.Data;
+using System.Security.Claims;
 using AutoMapper;
 using BrewlogsApi.Data;
 using BrewlogsApi.Dtos;
@@ -97,7 +98,7 @@ public class AuthController : ControllerBase
     [HttpPut("PasswordReset")]
     public IActionResult ResetPassword(UserForPasswordResetDto userForPasswordReset)
     {
-        string userId = User.FindFirst("userId")!.Value;
+        Claim? userId = User.FindFirst("userId");
         
         if (_authHelper.ResetPassword(userForPasswordReset, userId))
         {
@@ -110,16 +111,11 @@ public class AuthController : ControllerBase
     [HttpGet("RefreshToken")]
     public IActionResult RefreshToken()
     {
-        string userIdSql = """
-                           
-                                           SELECT UserId FROM BrewData.Users WHERE UserId = '
-                           """ +
-                           User.FindFirst("userId")?.Value + "'";
-
-        int userId = _dapper.LoadDataSingle<int>(userIdSql);
-
-        if (userId <= 0)
-            return Unauthorized(new { error = "Authentication failed", message = "Please check your credentials." });
+        Claim? userIdClaim = User.FindFirst("userId");
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId) || userId <= 0)
+        {
+            return Unauthorized(new { error = "Authentication failed", message = "There was an error validating the user." });
+        }
         
         string newToken = _authHelper.CreateToken(userId);
         return Ok(new { token = newToken });
