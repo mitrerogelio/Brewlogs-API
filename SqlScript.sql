@@ -140,6 +140,40 @@ BEGIN
 END
 GO
 
+-- Create spUser_Upsert stored procedure
+CREATE OR ALTER PROCEDURE BrewData.spUser_Upsert @FirstName NVARCHAR(50),
+                                                 @LastName NVARCHAR(50),
+                                                 @Email NVARCHAR(50),
+                                                 @Active BIT = 1,
+                                                 @UserId INT = NULL
+AS
+BEGIN
+    IF NOT EXISTS (SELECT * FROM BrewData.Users WHERE UserId = @UserId)
+        BEGIN
+            IF NOT EXISTS (SELECT * FROM BrewData.Users WHERE Email = @Email)
+                BEGIN
+                    INSERT INTO BrewData.Users([FirstName],
+                                               [LastName],
+                                               [Email],
+                                               [Active])
+                    VALUES (@FirstName,
+                            @LastName,
+                            @Email,
+                            @Active)
+                END
+        END
+    ELSE
+        BEGIN
+            UPDATE BrewData.Users
+            SET FirstName = @FirstName,
+                LastName  = @LastName,
+                Email     = @Email,
+                Active    = @Active
+            WHERE UserId = @UserId
+        END
+END;
+GO
+
 -- Create spLoginConfirmation_Get stored procedure
 CREATE OR ALTER PROCEDURE BrewData.spLoginConfirmation_Get @Email NVARCHAR(50)
 AS
