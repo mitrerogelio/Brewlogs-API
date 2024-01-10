@@ -34,12 +34,7 @@ public class AuthController : ControllerBase
     {
         if (account.Password != account.PasswordConfirm) return BadRequest("Passwords do not match!");
 
-        string sqlCheckUserExists = "SELECT Email FROM BrewData.Auth WHERE Email = '" +
-                                    account.Email + "'";
-
-        IEnumerable<string> existingUsers = _dapper.LoadData<string>(sqlCheckUserExists);
-
-        if (existingUsers.Any()) return Conflict("User with this email already exists!");
+        if (_authHelper.UserExists(account.Email)) return BadRequest("Email already exists.");
 
         UserForLoginDto userForSetPassword = new()
         {
