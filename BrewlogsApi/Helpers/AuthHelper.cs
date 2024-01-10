@@ -110,7 +110,7 @@ public class AuthHelper
         return _dapper.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters);
     }
 
-    public bool ResetPassword(UserForPasswordResetDto userForResetPassword, Claim userId)
+    public bool ResetPassword(UserForPasswordResetDto userForResetPassword, string userId)
     {
         byte[] passwordSalt = CreateSalt();
 
