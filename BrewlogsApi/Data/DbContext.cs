@@ -30,7 +30,7 @@ public class DbContext
         IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
         return dbConnection.Execute(sql, parameters) > 0;
     }
-    
+
     public int ExecuteScalarSqlWithParameters(string sql, DynamicParameters parameters)
     {
         using IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));

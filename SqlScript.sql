@@ -41,8 +41,9 @@ CREATE TABLE BrewData.Brewlogs
     Grind      NVARCHAR(100),
     BrewRatio  INT           NOT NULL,
     Roast      NVARCHAR(100),
-    BrewerUsed NVARCHAR(50) NOT NULL,
-    FOREIGN KEY (Author) REFERENCES BrewData.Users (UserId)
+    BrewerUsed NVARCHAR(50)  NOT NULL,
+    CreatedAt  DATETIME DEFAULT GETDATE(),
+    LastEdited DATETIME      NULL
 );
 GO
 
@@ -152,9 +153,8 @@ END;
 GO
 
 -- Create spBrewlogs_Get stored procedure
-CREATE OR ALTER PROCEDURE BrewData.spBrewlogs_Get 
-    @Author INT = NULL,
-    @BrewlogId INT = NULL
+CREATE OR ALTER PROCEDURE BrewData.spBrewlogs_Get @Author INT = NULL,
+                                                  @BrewlogId INT = NULL
 AS
 BEGIN
     SELECT Brewlogs.Id,
@@ -164,10 +164,12 @@ BEGIN
            Brewlogs.Grind,
            Brewlogs.BrewRatio,
            Brewlogs.Roast,
-           Brewlogs.BrewerUsed
+           Brewlogs.BrewerUsed,
+           Brewlogs.CreatedAt,
+           Brewlogs.LastEdited
     FROM BrewData.Brewlogs AS Brewlogs
-        WHERE Brewlogs.Id = ISNULL(@BrewlogId, Brewlogs.Id)
-        AND Brewlogs.Author = ISNULL(@Author, Brewlogs.Author)
+    WHERE Brewlogs.Id = ISNULL(@BrewlogId, Brewlogs.Id)
+      AND Brewlogs.Author = ISNULL(@Author, Brewlogs.Author)
 END;
 GO
 
@@ -182,7 +184,6 @@ CREATE OR ALTER PROCEDURE BrewData.spBrewlogs_Upsert @Id INT = NULL,
                                                      @BrewerUsed NVARCHAR(MAX)
 AS
 BEGIN
-    SET NOCOUNT ON;
     BEGIN TRY
         IF @Id IS NULL
             BEGIN
@@ -200,7 +201,7 @@ BEGIN
                         @Grind,
                         @BrewRatio,
                         @Roast,
-                        @BrewerUsed)
+                        @BrewerUsed);
             END
         ELSE
             BEGIN
@@ -211,8 +212,9 @@ BEGIN
                     Grind      = @Grind,
                     BrewRatio  = @BrewRatio,
                     Roast      = @Roast,
-                    BrewerUsed = @BrewerUsed
-                WHERE Id = @Id
+                    BrewerUsed = @BrewerUsed,
+                    LastEdited = GETDATE()
+                WHERE Id = @Id;
             END
     END TRY
     BEGIN CATCH

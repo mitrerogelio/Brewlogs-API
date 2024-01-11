@@ -22,20 +22,30 @@ public class BrewlogsController : ControllerBase
     {
         int authorId = int.Parse(this.User.FindFirst("userId")?.Value ?? "");
 
-        const string sql = """
-                           EXEC BrewData.spBrewlogs_Upsert
-                                               @Id=@IdParameter,
-                                               @Author=@AuthorParameter,
-                                               @CoffeeName=@CoffeeNameParameter,
-                                               @Dose=@DoseParameter,
-                                               @Grind=@GrindParameter,
-                                               @BrewRatio=@BrewRatioParameter,
-                                               @Roast=@RoastParameter,
-                                               @BrewerUsed=@BrewerUsedParameter
-                           """;
+        string sql = """
+                     EXEC BrewData.spBrewlogs_Upsert
+
+                     """;
 
         DynamicParameters sqlParameters = new();
-        sqlParameters.Add("@IdParameter", brewlogDto.Id, DbType.Int32);
+        if (brewlogDto.Id.HasValue)
+        {
+            sqlParameters.Add("@Id", brewlogDto.Id.Value, DbType.Int32);
+        }
+        else
+        {
+            sqlParameters.Add("@Id", DBNull.Value, DbType.Int32);
+        }
+
+        sql += """
+               @Author=@AuthorParameter,
+               @CoffeeName=@CoffeeNameParameter,
+               @Dose=@DoseParameter,
+               @Grind=@GrindParameter,
+               @BrewRatio=@BrewRatioParameter,
+               @Roast=@RoastParameter,
+               @BrewerUsed=@BrewerUsedParameter
+               """;
         sqlParameters.Add("@AuthorParameter", authorId, DbType.Int32);
         sqlParameters.Add("@CoffeeNameParameter", brewlogDto.CoffeeName, DbType.String);
         sqlParameters.Add("@DoseParameter", brewlogDto.Dose, DbType.Int32);
@@ -50,9 +60,19 @@ public class BrewlogsController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetBrewlog(int id)
+    public Task<IActionResult> GetBrewlog(int id)
     {
-        throw new NotImplementedException();
+        int authorId = int.Parse(this.User.FindFirst("userId")?.Value ?? "");
+        const string sql = "EXEC BrewData.spBrewlogs_Get" +
+                           "@Id=@IdParameter" +
+                           "@Author=@AuthorParameter";
+        DynamicParameters sqlParameters = new();
+        sqlParameters.Add("@IdParameter", id, DbType.Int32);
+        sqlParameters.Add("@AuthorParameter", authorId, DbType.Int32);
+
+        bool result = _dapper.ExecuteSqlWithParameters(sql, sqlParameters);
+
+        return Task.FromResult<IActionResult>(result ? Ok() : StatusCode(500));
     }
 
     /*
@@ -65,27 +85,6 @@ public class BrewlogsController : ControllerBase
             return NotFound();
         }
         return Ok(brewlogs);
-    }
-
-
-    [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateBrewlog(Guid id, Brewlog updatedBrewlog)
-    {
-        Brewlog? existingBrewlog = await _repository.GetBrewlog(id);
-        if (existingBrewlog == null)
-        {
-            return NotFound();
-        }
-
-        existingBrewlog.CoffeeName = updatedBrewlog.CoffeeName;
-        existingBrewlog.Dose = updatedBrewlog.Dose;
-        existingBrewlog.Grind = updatedBrewlog.Grind;
-        existingBrewlog.BrewRatio = updatedBrewlog.BrewRatio;
-        existingBrewlog.Roast = updatedBrewlog.Roast;
-        existingBrewlog.BrewerUsed = updatedBrewlog.BrewerUsed;
-
-        await _repository.SaveChangesAsync();
-        return Ok(existingBrewlog);
     }
 
     [HttpDelete("{id:guid}")]
