@@ -153,8 +153,10 @@ END;
 GO
 
 -- Create spBrewlogs_Get stored procedure
-CREATE OR ALTER PROCEDURE BrewData.spBrewlogs_Get @Author INT = NULL,
-                                                  @BrewlogId INT = NULL
+CREATE OR ALTER PROCEDURE BrewData.spBrewlogs_Get
+    @Author INT = NULL,
+    @BrewlogId INT = NULL,
+    @SearchValue NVARCHAR(MAX) = NULL
 AS
 BEGIN
     SELECT Brewlogs.Id,
@@ -168,9 +170,14 @@ BEGIN
            Brewlogs.CreatedAt,
            Brewlogs.LastEdited
     FROM BrewData.Brewlogs AS Brewlogs
-    WHERE Brewlogs.Id = ISNULL(@BrewlogId, Brewlogs.Id)
-      AND Brewlogs.Author = ISNULL(@Author, Brewlogs.Author)
-END;
+    WHERE (@BrewlogId IS NULL OR Brewlogs.Id = @BrewlogId)
+      AND (@Author IS NULL OR Brewlogs.Author = @Author)
+      AND (@SearchValue IS NULL
+        OR Brewlogs.CoffeeName LIKE '%' + @SearchValue + '%'
+        OR Brewlogs.Roast LIKE '%' + @SearchValue + '%'
+        OR Brewlogs.Grind LIKE '%' + @SearchValue + '%'
+        OR Brewlogs.BrewerUsed LIKE '%' + @SearchValue + '%')
+END
 GO
 
 -- Create spBrewlogs_Upsert stored procedure

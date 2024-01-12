@@ -1,6 +1,7 @@
 using System.Data;
 using BrewlogsApi.Data;
 using BrewlogsApi.Dtos;
+using BrewlogsApi.Model;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -59,34 +60,59 @@ public class BrewlogsController : ControllerBase
         return result ? Ok() : StatusCode(500);
     }
 
-    [HttpGet("{id:int}")]
-    public Task<IActionResult> GetBrewlog(int id)
+    [HttpGet("{logId:int}")]
+    public ObjectResult GetLog(int logId)
     {
-        int authorId = int.Parse(this.User.FindFirst("userId")?.Value ?? "");
-        const string sql = "EXEC BrewData.spBrewlogs_Get" +
-                           "@Id=@IdParameter" +
-                           "@Author=@AuthorParameter";
-        DynamicParameters sqlParameters = new();
-        sqlParameters.Add("@IdParameter", id, DbType.Int32);
-        sqlParameters.Add("@AuthorParameter", authorId, DbType.Int32);
+        try
+        {
+            int authorId = int.Parse(User.FindFirst("userId")?.Value ?? "");
+            string sql = "EXEC BrewData.spBrewlogs_Get \n";
+            const string stringParameters = """
+                                            @BrewlogId=@BrewlogIdParameter,
+                                            @Author=@AuthorParameter
+                                            """;
 
-        bool result = _dapper.ExecuteSqlWithParameters(sql, sqlParameters);
+            DynamicParameters sqlParameters = new();
+            sqlParameters.Add("@BrewlogIdParameter", logId, DbType.Int32);
+            sqlParameters.Add("@AuthorParameter", authorId, DbType.Int32);
+            sql += stringParameters;
 
-        return Task.FromResult<IActionResult>(result ? Ok() : StatusCode(500));
+            IEnumerable<Brewlog> record = _dapper.LoadDataWithParameters<Brewlog>(sql, sqlParameters);
+            return Ok(record);
+        }
+        catch
+        {
+            return StatusCode(500, "Failed to get brewlog");
+        }
+    }
+
+    [HttpGet]
+    public ObjectResult QueryLogs(string? search = null)
+    {
+        try
+        {
+            int authorId = int.Parse(User.FindFirst("userId")?.Value ?? "");
+            string sql = "EXEC BrewData.spBrewlogs_Get \n";
+            const string stringParameters = """
+                                            @Author=@AuthorParameter,
+                                            @SearchValue=@SearchValueParameter
+                                            """;
+
+            DynamicParameters sqlParameters = new();
+            sqlParameters.Add("@AuthorParameter", authorId, DbType.Int32);
+            sqlParameters.Add("@SearchValueParameter", search, DbType.String);
+            sql += stringParameters;
+
+            IEnumerable<Brewlog> record = _dapper.LoadDataWithParameters<Brewlog>(sql, sqlParameters);
+            return Ok(record);
+        }
+        catch
+        {
+            return StatusCode(500, "Failed to get brewlog");
+        }
     }
 
     /*
-    [HttpGet]
-    public async Task<IActionResult> GetBrewlogs()
-    {
-        List<Brewlog>? brewlogs = await _repository.GetBrewlogs();
-        if (brewlogs == null)
-        {
-            return NotFound();
-        }
-        return Ok(brewlogs);
-    }
-
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteBrewlog(Guid id)
     {
