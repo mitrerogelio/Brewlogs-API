@@ -78,6 +78,12 @@ public class BrewlogsController : ControllerBase
             sql += stringParameters;
 
             IEnumerable<Brewlog> record = _dapper.LoadDataWithParameters<Brewlog>(sql, sqlParameters);
+
+            if (record == null || !record.Any())
+            {
+                return NotFound("Brewlog not found.");
+            }
+
             return Ok(record);
         }
         catch
@@ -104,6 +110,12 @@ public class BrewlogsController : ControllerBase
             sql += stringParameters;
 
             IEnumerable<Brewlog> record = _dapper.LoadDataWithParameters<Brewlog>(sql, sqlParameters);
+
+            if (record == null || !record.Any())
+            {
+                return NotFound("Brewlog not found.");
+            }
+
             return Ok(record);
         }
         catch

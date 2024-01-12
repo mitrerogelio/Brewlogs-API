@@ -174,8 +174,6 @@ BEGIN
       AND (@Author IS NULL OR Brewlogs.Author = @Author)
       AND (@SearchValue IS NULL
         OR Brewlogs.CoffeeName LIKE '%' + @SearchValue + '%'
-        OR Brewlogs.Roast LIKE '%' + @SearchValue + '%'
-        OR Brewlogs.Grind LIKE '%' + @SearchValue + '%'
         OR Brewlogs.BrewerUsed LIKE '%' + @SearchValue + '%')
 END
 GO
