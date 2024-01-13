@@ -21,7 +21,7 @@ public class BrewlogsController : ControllerBase
     [HttpPost]
     public IActionResult UpsertBrewlog(BrewlogDto brewlogDto)
     {
-        int authorId = int.Parse(this.User.FindFirst("userId")?.Value ?? "");
+        int authorId = int.Parse(User.FindFirst("userId")!.Value);
 
         string sql = """
                      EXEC BrewData.spBrewlogs_Upsert
@@ -31,7 +31,8 @@ public class BrewlogsController : ControllerBase
         DynamicParameters sqlParameters = new();
         if (brewlogDto.Id.HasValue)
         {
-            sqlParameters.Add("@Id", brewlogDto.Id.Value, DbType.Int32);
+            sql += "@Id=@IdParameter,\n";
+            sqlParameters.Add("@IdParameter", brewlogDto.Id.Value, DbType.Int32);
         }
         else
         {
@@ -45,7 +46,8 @@ public class BrewlogsController : ControllerBase
                @Grind=@GrindParameter,
                @BrewRatio=@BrewRatioParameter,
                @Roast=@RoastParameter,
-               @BrewerUsed=@BrewerUsedParameter
+               @BrewerUsed=@BrewerUsedParameter,
+               @Rating=@RatingParameter
                """;
         sqlParameters.Add("@AuthorParameter", authorId, DbType.Int32);
         sqlParameters.Add("@CoffeeNameParameter", brewlogDto.CoffeeName, DbType.String);
@@ -54,6 +56,7 @@ public class BrewlogsController : ControllerBase
         sqlParameters.Add("@BrewRatioParameter", brewlogDto.BrewRatio, DbType.Int32);
         sqlParameters.Add("@RoastParameter", brewlogDto.Roast, DbType.String);
         sqlParameters.Add("@BrewerUsedParameter", brewlogDto.BrewerUsed, DbType.String);
+        sqlParameters.Add("@RatingParameter", brewlogDto.Rating, DbType.Int16);
 
         bool result = _dapper.ExecuteSqlWithParameters(sql, sqlParameters);
 
@@ -79,7 +82,7 @@ public class BrewlogsController : ControllerBase
 
             IEnumerable<Brewlog> record = _dapper.LoadDataWithParameters<Brewlog>(sql, sqlParameters);
 
-            if (record == null || !record.Any())
+            if (!record.Any())
             {
                 return NotFound("Brewlog not found.");
             }
@@ -111,7 +114,7 @@ public class BrewlogsController : ControllerBase
 
             IEnumerable<Brewlog> record = _dapper.LoadDataWithParameters<Brewlog>(sql, sqlParameters);
 
-            if (record == null || !record.Any())
+            if (!record.Any())
             {
                 return NotFound("Brewlog not found.");
             }
