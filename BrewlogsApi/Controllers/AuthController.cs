@@ -92,9 +92,9 @@ public class AuthController : ControllerBase
     [HttpPut("PasswordReset")]
     public IActionResult ResetPassword(UserForPasswordResetDto userForPasswordReset)
     {
-        string userId = User.FindFirst("userId")!.Value;
-
-        if (_authHelper.ResetPassword(userForPasswordReset, userId))
+        string? userId = User.FindFirst("userId")?.Value;
+        
+        if (userId != null && _authHelper.ResetPassword(userForPasswordReset, userId))
         {
             return Ok();
         }
@@ -105,17 +105,12 @@ public class AuthController : ControllerBase
     [HttpGet("RefreshToken")]
     public IActionResult RefreshToken()
     {
-        string userIdSql = """
-                           
-                                           SELECT UserId FROM BrewData.Users WHERE UserId = '
-                           """ +
-                           User.FindFirst("userId")?.Value + "'";
-
-        int userId = _dapper.LoadDataSingle<int>(userIdSql);
-
-        if (userId <= 0)
-            return Unauthorized(new { error = "Authentication failed", message = "Please check your credentials." });
-
+        string? userIdClaim = User.FindFirst("userId")?.Value;
+        if (!int.TryParse(userIdClaim, out int userId) || userId <= 0)
+        {
+            return Unauthorized(new { error = "Authentication failed", message = "There was an error validating the user." });
+        }
+        
         string newToken = _authHelper.CreateToken(userId);
         return Ok(new { token = newToken });
     }
