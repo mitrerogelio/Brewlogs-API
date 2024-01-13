@@ -19,12 +19,6 @@ public class DbContext
         return dbConnection.QuerySingle<T>(sql);
     }
 
-    public bool ExecuteSql(string sql)
-    {
-        IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
-        return dbConnection.Execute(sql) > 0;
-    }
-
     public bool ExecuteSqlWithParameters(string sql, DynamicParameters parameters)
     {
         IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
