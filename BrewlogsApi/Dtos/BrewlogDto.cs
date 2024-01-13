@@ -9,4 +9,5 @@ public class BrewlogDto
     public int BrewRatio { get; set; }
     public string Roast { get; set; } = "";
     public string BrewerUsed { get; set; } = "";
+    public int Rating { get; set; }
 }

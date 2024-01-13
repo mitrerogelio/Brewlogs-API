@@ -42,6 +42,7 @@ CREATE TABLE BrewData.Brewlogs
     BrewRatio  INT           NOT NULL,
     Roast      NVARCHAR(100),
     BrewerUsed NVARCHAR(50)  NOT NULL,
+    Rating     INT           NOT NULL,
     CreatedAt  DATETIME DEFAULT GETDATE(),
     LastEdited DATETIME      NULL
 );
@@ -187,10 +188,9 @@ END;
 GO
 
 -- Create spBrewlogs_Get stored procedure
-CREATE OR ALTER PROCEDURE BrewData.spBrewlogs_Get
-    @Author INT = NULL,
-    @BrewlogId INT = NULL,
-    @SearchValue NVARCHAR(MAX) = NULL
+CREATE OR ALTER PROCEDURE BrewData.spBrewlogs_Get @Author INT = NULL,
+                                                  @BrewlogId INT = NULL,
+                                                  @SearchValue NVARCHAR(MAX) = NULL
 AS
 BEGIN
     SELECT Brewlogs.Id,
@@ -201,6 +201,7 @@ BEGIN
            Brewlogs.BrewRatio,
            Brewlogs.Roast,
            Brewlogs.BrewerUsed,
+           Brewlogs.Rating,
            Brewlogs.CreatedAt,
            Brewlogs.LastEdited
     FROM BrewData.Brewlogs AS Brewlogs
@@ -220,7 +221,8 @@ CREATE OR ALTER PROCEDURE BrewData.spBrewlogs_Upsert @Id INT = NULL,
                                                      @Grind NVARCHAR(MAX),
                                                      @BrewRatio INT,
                                                      @Roast NVARCHAR(MAX),
-                                                     @BrewerUsed NVARCHAR(MAX)
+                                                     @BrewerUsed NVARCHAR(MAX),
+                                                     @Rating INT
 AS
 BEGIN
     BEGIN TRY
@@ -233,14 +235,16 @@ BEGIN
                  [Grind],
                  [BrewRatio],
                  [Roast],
-                 [BrewerUsed])
+                 [BrewerUsed],
+                 [Rating])
                 VALUES (@Author,
                         @CoffeeName,
                         @Dose,
                         @Grind,
                         @BrewRatio,
                         @Roast,
-                        @BrewerUsed);
+                        @BrewerUsed,
+                        @Rating);
             END
         ELSE
             BEGIN
@@ -252,6 +256,7 @@ BEGIN
                     BrewRatio  = @BrewRatio,
                     Roast      = @Roast,
                     BrewerUsed = @BrewerUsed,
+                    Rating     = @Rating,
                     LastEdited = GETDATE()
                 WHERE Id = @Id;
             END
