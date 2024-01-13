@@ -38,7 +38,7 @@ IConfigurationSection validAudiencesSection =
     builder.Configuration.GetSection("Authentication:Schemes:Bearer:ValidAudiences");
 string[] validAudiences = validAudiencesSection.Get<string[]>() ?? Array.Empty<string>();
 
-Console.WriteLine($"Token Key: {(tokenKeyString ?? "Token key not found")}");
+Console.WriteLine($"Token Key: {tokenKeyString ?? "Token key not found"}");
 Console.WriteLine($"Valid Issuer: {(string.IsNullOrEmpty(validIssuer) ? "Issuer not found" : validIssuer)}");
 if (validAudiences.Any())
 {

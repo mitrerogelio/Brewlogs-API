@@ -127,19 +127,24 @@ public class BrewlogsController : ControllerBase
         }
     }
 
-    /*
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteBrewlog(Guid id)
+    [HttpDelete("{id:int}")]
+    public Task<IActionResult> DeleteBrewlog(int id)
     {
-        Brewlog? brewlog = await _repository.GetBrewlog(id);
-        if (brewlog == null)
-        {
-            return NotFound();
-        }
+        int authorId = int.Parse(User.FindFirst("userId")?.Value ?? "");
+        if (authorId == 0)
+            return Task.FromResult<IActionResult>(BadRequest("There was an error retrieving the current user"));
+        const string sql = """
+                           EXEC BrewData.spBrewlogs_Delete
+                                           @Id=@IdParameter,
+                                           @Author=@AuthorParameter
+                           """;
 
-        _repository.RemoveEntity(brewlog);
-        await _repository.SaveChangesAsync();
-        return NoContent();
+        DynamicParameters sqlParameters = new();
+        sqlParameters.Add("@IdParameter", id, DbType.Int32);
+        sqlParameters.Add("@AuthorParameter", authorId, DbType.Int32);
+
+        return _dapper.ExecuteSqlWithParameters(sql, sqlParameters)
+            ? Task.FromResult<IActionResult>(Ok())
+            : Task.FromResult<IActionResult>(NotFound("Brewlog not found or already deleted"));
     }
-*/
 }
