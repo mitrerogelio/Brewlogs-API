@@ -1,6 +1,7 @@
 using System.Data;
 using BrewlogsApi.Data;
 using BrewlogsApi.Dtos;
+using BrewlogsApi.Model;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,32 +18,35 @@ public class BrewlogsController : ControllerBase
         _dapper = new DbContext(config);
     }
 
-    [HttpGet("test")]
-    public DateTime Test()
-    {
-        return _dapper.LoadDataSingle<DateTime>("SELECT GETDATE()");
-    }
-
-
     [HttpPost]
     public IActionResult UpsertBrewlog(BrewlogDto brewlogDto)
     {
         int authorId = int.Parse(this.User.FindFirst("userId")?.Value ?? "");
 
-        const string sql = """
-                           EXEC BrewData.spBrewlogs_Upsert
-                                               @Id=@IdParameter,
-                                               @Author=@AuthorParameter,
-                                               @CoffeeName=@CoffeeNameParameter,
-                                               @Dose=@DoseParameter,
-                                               @Grind=@GrindParameter,
-                                               @BrewRatio=@BrewRatioParameter,
-                                               @Roast=@RoastParameter,
-                                               @BrewerUsed=@BrewerUsedParameter
-                           """;
+        string sql = """
+                     EXEC BrewData.spBrewlogs_Upsert
 
-        DynamicParameters sqlParameters = new DynamicParameters();
-        sqlParameters.Add("@IdParameter", brewlogDto.Id, DbType.Int32);
+                     """;
+
+        DynamicParameters sqlParameters = new();
+        if (brewlogDto.Id.HasValue)
+        {
+            sqlParameters.Add("@Id", brewlogDto.Id.Value, DbType.Int32);
+        }
+        else
+        {
+            sqlParameters.Add("@Id", DBNull.Value, DbType.Int32);
+        }
+
+        sql += """
+               @Author=@AuthorParameter,
+               @CoffeeName=@CoffeeNameParameter,
+               @Dose=@DoseParameter,
+               @Grind=@GrindParameter,
+               @BrewRatio=@BrewRatioParameter,
+               @Roast=@RoastParameter,
+               @BrewerUsed=@BrewerUsedParameter
+               """;
         sqlParameters.Add("@AuthorParameter", authorId, DbType.Int32);
         sqlParameters.Add("@CoffeeNameParameter", brewlogDto.CoffeeName, DbType.String);
         sqlParameters.Add("@DoseParameter", brewlogDto.Dose, DbType.Int32);
@@ -56,52 +60,71 @@ public class BrewlogsController : ControllerBase
         return result ? Ok() : StatusCode(500);
     }
 
+    [HttpGet("{logId:int}")]
+    public ObjectResult GetLog(int logId)
+    {
+        try
+        {
+            int authorId = int.Parse(User.FindFirst("userId")?.Value ?? "");
+            string sql = "EXEC BrewData.spBrewlogs_Get \n";
+            const string stringParameters = """
+                                            @BrewlogId=@BrewlogIdParameter,
+                                            @Author=@AuthorParameter
+                                            """;
+
+            DynamicParameters sqlParameters = new();
+            sqlParameters.Add("@BrewlogIdParameter", logId, DbType.Int32);
+            sqlParameters.Add("@AuthorParameter", authorId, DbType.Int32);
+            sql += stringParameters;
+
+            IEnumerable<Brewlog> record = _dapper.LoadDataWithParameters<Brewlog>(sql, sqlParameters);
+
+            if (record == null || !record.Any())
+            {
+                return NotFound("Brewlog not found.");
+            }
+
+            return Ok(record);
+        }
+        catch
+        {
+            return StatusCode(500, "Failed to get brewlog");
+        }
+    }
+
+    [HttpGet]
+    public ObjectResult QueryLogs(string? search = null)
+    {
+        try
+        {
+            int authorId = int.Parse(User.FindFirst("userId")?.Value ?? "");
+            string sql = "EXEC BrewData.spBrewlogs_Get \n";
+            const string stringParameters = """
+                                            @Author=@AuthorParameter,
+                                            @SearchValue=@SearchValueParameter
+                                            """;
+
+            DynamicParameters sqlParameters = new();
+            sqlParameters.Add("@AuthorParameter", authorId, DbType.Int32);
+            sqlParameters.Add("@SearchValueParameter", search, DbType.String);
+            sql += stringParameters;
+
+            IEnumerable<Brewlog> record = _dapper.LoadDataWithParameters<Brewlog>(sql, sqlParameters);
+
+            if (record == null || !record.Any())
+            {
+                return NotFound("Brewlog not found.");
+            }
+
+            return Ok(record);
+        }
+        catch
+        {
+            return StatusCode(500, "Failed to get brewlog");
+        }
+    }
 
     /*
-    [HttpGet]
-    public async Task<IActionResult> GetBrewlogs()
-    {
-        List<Brewlog>? brewlogs = await _repository.GetBrewlogs();
-        if (brewlogs == null)
-        {
-            return NotFound();
-        }
-        return Ok(brewlogs);
-    }
-
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetBrewlog(Guid id)
-    {
-        Brewlog? brewlog = await _repository.GetBrewlog(id);
-
-        if (brewlog == null)
-        {
-            return NotFound();
-        }
-
-        return Ok(brewlog);
-    }
-
-    [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateBrewlog(Guid id, Brewlog updatedBrewlog)
-    {
-        Brewlog? existingBrewlog = await _repository.GetBrewlog(id);
-        if (existingBrewlog == null)
-        {
-            return NotFound();
-        }
-
-        existingBrewlog.CoffeeName = updatedBrewlog.CoffeeName;
-        existingBrewlog.Dose = updatedBrewlog.Dose;
-        existingBrewlog.Grind = updatedBrewlog.Grind;
-        existingBrewlog.BrewRatio = updatedBrewlog.BrewRatio;
-        existingBrewlog.Roast = updatedBrewlog.Roast;
-        existingBrewlog.BrewerUsed = updatedBrewlog.BrewerUsed;
-
-        await _repository.SaveChangesAsync();
-        return Ok(existingBrewlog);
-    }
-
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteBrewlog(Guid id)
     {
