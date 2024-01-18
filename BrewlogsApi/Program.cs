@@ -21,6 +21,11 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
+        // Blazor Port: 7115
+        corsBuilder.WithOrigins("https://localhost:7115/")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
     options.AddPolicy("ProdCors", corsBuilder =>
     {
